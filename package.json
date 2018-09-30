@@ -5,15 +5,31 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "build:electron": "vue-cli-service build:electron",
+    "serve:electron": "vue-cli-service serve:electron",
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
-    "vue": "^2.5.17"
+    "@mdi/font": "^2.7.94",
+    "axios": "^0.18.0",
+    "lodash": "^4.17.10",
+    "moment": "^2.22.2",
+    "vue": "^2.5.17",
+    "vue-electron": "^1.0.6",
+    "vue-router": "^3.0.1",
+    "vuetify": "^1.0.19",
+    "vuex": "^3.0.1"
   },
   "devDependencies": {
+    "@babel/polyfill": "^7.0.0-beta.49",
     "@vue/cli-plugin-babel": "^3.0.1",
     "@vue/cli-plugin-eslint": "^3.0.1",
     "@vue/cli-service": "^3.0.1",
+    "electron": "^2.0.2",
+    "material-design-icons-iconfont": "^3.0.3",
+    "vue-cli-plugin-electron-builder": "^1.0.0-rc.2",
+    "vue-cli-plugin-vuetify": "^0.1.6",
     "vue-template-compiler": "^2.5.17"
   },
   "eslintConfig": {
@@ -39,5 +55,16 @@
     "> 1%",
     "last 2 versions",
     "not ie <= 8"
-  ]
+  ],
+  "main": "dist_electron/bundled/background.js",
+  "build": {
+    "productName": "regs",
+    "appId": "scripter.regs",
+    "win": {
+      "target": ["portable"]
+    },
+    "portable": {
+      "artifactName": "regs_portable.exe"
+    }
+  }
 }
