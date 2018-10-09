@@ -61,7 +61,9 @@
     "productName": "regs",
     "appId": "scripter.regs",
     "win": {
-      "target": ["portable"]
+      "target": [
+        "portable"
+      ]
     },
     "portable": {
       "artifactName": "regs_portable.exe"

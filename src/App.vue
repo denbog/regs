@@ -56,15 +56,6 @@
             v-model="printShow"
           ></v-switch>
 
-          <v-select
-            v-model="printTpl"
-            :items="printList"
-            item-text="label"
-            item-value="variant"
-            label="Вариант печати бейджа"
-            color="white"
-          ></v-select>
-
           <v-text-field
             append-icon="mdi-server-network"
             color="white"
@@ -164,12 +155,6 @@ export default {
       title: 'РОСМЕДОБР-2018',
       rightDrawer: false,
       datenow: '',
-      printList: [
-        { label: 'Вариант 1', variant: '1' },
-        { label: 'Вариант 2', variant: '2' },
-        { label: 'Вариант 3', variant: '3' },
-        { label: 'Вариант 4', variant: '4' }
-      ],
 
       isDownloading: false,
       
@@ -204,14 +189,6 @@ export default {
       },
       set (value) {
         this.$store.commit('SET_PRINT_SHOW', value)
-      }
-    },
-    printTpl: {
-      get () {
-        return this.$store.state.Config.printTpl
-      },
-      set (value) {
-        this.$store.commit('SET_PRINT_TPL', value)
       }
     },
     serverUrl: {

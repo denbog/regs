@@ -8,109 +8,168 @@
         </div>
       </v-card-title>
       <v-card-text>
-        <v-autocomplete
-          v-model="member"
-          :items="records"
-          :loading="isLoading"
-          :search-input.sync="searchByName"
-          hide-no-data
-          hide-selected
-          item-text="4"
-          item-value="0"
-          label="ФИО"
-          placeholder="Введите данные для поиска"
-          prepend-icon="mdi-database-search"
-          return-object
-          clearable
-        >
-        </v-autocomplete>
-        <v-text-field
-          prepend-icon="mdi-link"
-          readonly
-          label="ID (внутренний идентификатор участника)"
-          :value="memberView.id"
-        >
-        </v-text-field>
-        
-        <v-autocomplete
-          v-model="member"
-          :items="records"
-          :loading="isLoading"
-          :search-input.sync="searchByCompany"
-          hide-no-data
-          hide-selected
-          item-text="5"
-          item-value="0"
-          label="Компания"
-          placeholder="Введите данные для поиска"
-          prepend-icon="mdi-database-search"
-          return-object
-          clearable
-          :default="memberView.company"
-        >
-          <template
-            slot="item"
-            slot-scope="{ item, tile }"
+        <template v-if="editMode">
+          <v-text-field
+            prepend-icon="mdi-account-card-details"
+            label="ФИО"
+            v-model="memberEdit.full_name"
           >
-            {{ item[4] }}
-          </template>
-        </v-autocomplete>
-        <v-text-field
-          prepend-icon="mdi-account-details"
-          readonly
-          label="Должность"
-          :value="memberView.position"
-        >
-        </v-text-field>
-        <v-autocomplete
-          v-model="member"
-          :items="records"
-          :loading="isLoading"
-          :search-input.sync="searchByMail"
-          hide-no-data
-          hide-selected
-          item-text="7"
-          item-value="0"
-          label="Электронный адрес"
-          placeholder="Введите данные для поиска"
-          prepend-icon="mdi-database-search"
-          return-object
-          clearable
-          :default="memberView.email"
-        >
-        </v-autocomplete>
-        <v-text-field
-          prepend-icon="mdi-phone"
-          readonly
-          label="Телефон"
-          :value="memberView.phone"
-        >
-        </v-text-field>
-        <v-text-field
-          prepend-icon="mdi-message-bulleted"
-          readonly
-          label="Статус на мероприятии"
-          :value="memberView.status"
-        >
-        </v-text-field>
+          </v-text-field>
+          <v-text-field
+            prepend-icon="mdi-link"
+            readonly
+            label="ID (внутренний идентификатор участника)"
+            :value="memberEdit.id"
+          >
+          </v-text-field>
+          <v-text-field
+            prepend-icon="mdi-briefcase"
+            label="Компания"
+            v-model="memberEdit.company"
+          >
+          </v-text-field>
+          <v-text-field
+            prepend-icon="mdi-account-details"
+            label="Должность"
+            v-model="memberEdit.position"
+          >
+          </v-text-field>
+          <v-text-field
+            prepend-icon="mdi-email"
+            label="Электронный адрес"
+            v-model="memberEdit.email"
+          >
+          </v-text-field>
+          <v-text-field
+            prepend-icon="mdi-phone"
+            mask="+# (###) ### - ####"
+            return-masked-value
+            label="Телефон"
+            v-model="memberEdit.phone"
+          >
+          </v-text-field>
+          <v-select
+            :items="statusList"
+            prepend-icon="mdi-message-bulleted"
+            label="Статус на мероприятии"
+            v-model="memberEdit.status"
+          ></v-select>
+        </template>
+
+        <template v-else>
+          <v-autocomplete
+            v-model="member"
+            :items="records"
+            :loading="isLoading"
+            :search-input.sync="searchByName"
+            hide-no-data
+            hide-selected
+            item-text="4"
+            item-value="0"
+            label="ФИО"
+            placeholder="Введите данные для поиска"
+            prepend-icon="mdi-database-search"
+            return-object
+            clearable
+          >
+          </v-autocomplete>
+          <v-text-field
+            prepend-icon="mdi-link"
+            readonly
+            label="ID (внутренний идентификатор участника)"
+            :value="memberView.id"
+          >
+          </v-text-field>
+          
+          <v-autocomplete
+            v-model="member"
+            :items="records"
+            :loading="isLoading"
+            :search-input.sync="searchByCompany"
+            hide-no-data
+            hide-selected
+            item-text="5"
+            item-value="0"
+            label="Компания"
+            placeholder="Введите данные для поиска"
+            prepend-icon="mdi-database-search"
+            return-object
+            clearable
+            :default="memberView.company"
+          >
+            <template
+              slot="item"
+              slot-scope="{ item, tile }"
+            >
+              {{ item[4] }}
+            </template>
+          </v-autocomplete>
+          <v-text-field
+            prepend-icon="mdi-account-details"
+            readonly
+            label="Должность"
+            :value="memberView.position"
+          >
+          </v-text-field>
+          <v-autocomplete
+            v-model="member"
+            :items="records"
+            :loading="isLoading"
+            :search-input.sync="searchByMail"
+            hide-no-data
+            hide-selected
+            item-text="7"
+            item-value="0"
+            label="Электронный адрес"
+            placeholder="Введите данные для поиска"
+            prepend-icon="mdi-database-search"
+            return-object
+            clearable
+            :default="memberView.email"
+          >
+          </v-autocomplete>
+          <v-text-field
+            prepend-icon="mdi-phone"
+            readonly
+            label="Телефон"
+            :value="memberView.phone"
+          >
+          </v-text-field>
+          <v-text-field
+            prepend-icon="mdi-message-bulleted"
+            readonly
+            label="Статус на мероприятии"
+            :value="memberView.status"
+          >
+          </v-text-field>
+        </template>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="light-blue darken-3 white--text" :disabled="!memberView.id" @click="printBadge">Печать бейджа <v-icon right>print</v-icon></v-btn>
-        <v-btn color="grey lighten-1" :disabled="!memberView.id" @click="member = null">Сброс <v-icon right>mdi-close-circle</v-icon></v-btn>
-        <v-spacer></v-spacer>
-        <v-tooltip left>
-          <v-btn 
-            slot="activator"
-            fab 
-            dark
-            :color="memberView.date_badge ? 'error' : 'success'"
-            :disabled="!memberView.id" 
-            @click.native="sheet = !sheet"
-          >
-              <v-icon>print</v-icon>
-          </v-btn>
-          <span>{{ memberView.date_badge ? 'Распечатан' : 'Не распечатан' }}</span>
-        </v-tooltip>
+        <template v-if="editMode">
+          <v-btn color="green darken-3 white--text" :disabled="!canUpdateMember" @click="updateMember">Сохранить <v-icon right>mdi-content-save</v-icon></v-btn>
+          <v-btn color="grey lighten-1" @click="editMode = false">Отмена <v-icon right>mdi-keyboard-return</v-icon></v-btn>
+        </template>
+
+        <template v-else>
+          <v-btn color="light-blue darken-3 white--text" :disabled="!memberView.id" @click="printBadge">Печать бейджа <v-icon right>print</v-icon></v-btn>
+          <v-btn color="grey lighten-1" :disabled="!memberView.id" @click="member = null">Сброс <v-icon right>mdi-close-circle</v-icon></v-btn>
+          <v-btn color="green darken-3 white--text" :disabled="!memberView.id" @click="enterEditMode">Изменить <v-icon right>mdi-account-edit</v-icon></v-btn>
+          <v-spacer></v-spacer>
+          <v-tooltip left>
+            <v-btn 
+              slot="activator"
+              fab 
+              dark
+              :color="memberView.date_badge ? 'error' : 'success'"
+              :disabled="!memberView.id" 
+              @click.native="sheet = !sheet"
+            >
+                <v-icon>print</v-icon>
+            </v-btn>
+            <span>{{ memberView.date_badge ? 'Распечатан' : 'Не распечатан' }}</span>
+          </v-tooltip>
+        </template>
+
       </v-card-actions>
     </v-card>
 
@@ -137,11 +196,14 @@ export default {
   data: () => ({
     isLoading: false,
     sheet: false,
+    editMode: false,
 
     records: [],
     searchByName: null,
     searchByMail: null,
-    searchByCompany: null
+    searchByCompany: null,
+
+    memberEdit: null,
   }),
   computed: {
     member: {
@@ -157,6 +219,12 @@ export default {
         return _.zipObject(this.$store.state.Member.memberColumns, new Array(this.$store.state.Member.memberColumns.length).fill(''))
 
       return _.zipObject(this.$store.state.Member.memberColumns, this.$store.state.Member.member)
+    },
+    statusList: function() {
+      return this.$store.state.Member.statusList
+    },
+    canUpdateMember: function() {
+      return (this.editMode && this.memberEdit.full_name && this.memberEdit.company && this.memberEdit.position && this.memberEdit.email && this.memberEdit.phone)
     }
   },
   watch: {
@@ -227,6 +295,36 @@ export default {
       })
         .then(() => {
           this.$store.commit('UPDATE_MEMBER_DATE_BAGE', memberDateBadge)
+        })
+        .catch(err => {
+          this.$store.commit('ERROR', err)
+        })
+    },
+
+    enterEditMode: function() {
+      this.memberEdit = _.zipObject(this.$store.state.Member.memberColumns, this.$store.state.Member.member)
+      this.editMode = true
+    },
+    updateMember: function() {
+      let fio = this.memberEdit.full_name.split(' ')
+
+      this.memberEdit.surname = fio[0]
+      this.memberEdit.name = fio[1] || ''
+      this.memberEdit.middle_name = fio[2] || ''
+
+      this.$api({
+        method: 'put',
+        url: '/' + this.member[0],
+        data: this.memberEdit
+      })
+        .then((res) => {
+          if (1 == res.data) {
+            this.member = _.values(this.memberEdit)
+            this.records = [_.values(this.memberEdit)]
+            this.editMode = false
+          } else {
+            this.$store.commit('ERROR', 'Ошибка обновления')
+          }
         })
         .catch(err => {
           this.$store.commit('ERROR', err)

@@ -24,9 +24,17 @@
           clearable
         >
         </v-autocomplete>
+        <v-select
+          v-model="printTpl"
+          :items="printList"
+          item-text="label"
+          item-value="variant"
+          label="Вариант печати"
+          prepend-icon="mdi-settings"
+        ></v-select>
       </v-card-text>
       <v-card-actions>
-        <v-btn color="light-blue darken-3 white--text" :disabled="!memberView.id" @click="printBadge">Печать сертификата <v-icon right>print</v-icon></v-btn>
+        <v-btn color="light-blue darken-3 white--text" :disabled="!memberView.id" @click="printBadge">Печать {{ 'certificate' == printTpl ? 'сертификата' : 'диплома' }} <v-icon right>print</v-icon></v-btn>
         <v-btn color="grey lighten-1" :disabled="!memberView.id" @click="member = null">Сброс <v-icon right>mdi-close-circle</v-icon></v-btn>
       </v-card-actions>
     </v-card>
@@ -36,12 +44,17 @@
 
 <script>
 import _ from 'lodash'
-import moment from 'moment'
 
 export default {
   name: 'VshouzRegs',
   data: () => ({
     isLoading: false,
+
+    printList: [
+        { label: 'Сертификат', variant: 'certificate' },
+        { label: 'Диплом', variant: 'diploma' },
+    ],
+    printTpl: 'certificate',
 
     records: [],
     member: [],
@@ -88,11 +101,10 @@ export default {
     },
     printBadge: function() {
       let printParams = {
-        url: this.$store.state.Config.serverUrl+'/print/index.php?id='+this.member[0]+'&tpl=certificate',
+        url: this.$store.state.Config.serverUrl+'/print/index.php?id='+this.member[0]+'&tpl='+this.printTpl,
         show: this.$store.state.Config.printShow,
         silent: false
       }
-      console.log(printParams.url)
 
       this.$electron.ipcRenderer.send('print-badge', printParams)
       this.$store.commit('PRINTING')

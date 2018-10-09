@@ -2,7 +2,8 @@ import Vue from 'vue'
 
 const state = {
   member: null,
-  memberColumns: ["id", "surname", "name", "middle_name", "full_name", "company", "position", "email", "phone", "birthday", "status", "date_register", "date_badge", "city", "code"]
+  memberColumns: ["id", "surname", "name", "middle_name", "full_name", "company", "position", "email", "phone", "birthday", "status", "date_register", "date_badge", "city", "code"],
+  statusList: ['Участник', 'Организатор', 'Докладчик', 'Экспонент', 'Пресса'],
 }
 
 const mutations = {

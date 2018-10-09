@@ -44,6 +44,7 @@
         <v-text-field
           prepend-icon="mdi-phone"
           mask="+# (###) ### - ####"
+          return-masked-value
           label="Контактный телефон"
           v-model="new_member.phone"
         >
@@ -83,14 +84,16 @@ export default {
 
     new_member: null,
     new_company: '',
-    statusList: ['Участник', 'Организатор', 'Докладчик', 'Экспонент', 'Пресса'],
 
     records: [],
     searchByCompany: null
   }),
   computed: {
+    statusList: function() {
+      return this.$store.state.Member.statusList
+    },
     canAddNewMember: function() {
-      return (this.new_member.full_name && this.new_member.company && this.new_member.email)
+      return (this.new_member.full_name && this.new_member.company && this.new_member.position && this.new_member.email && this.new_member.phone && this.new_member.city)
     }
   },
   watch: {

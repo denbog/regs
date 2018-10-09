@@ -1,8 +1,7 @@
 const state = {
   printShow: false,
   printSilent: true,
-  printTpl: '3',
-  serverUrl: 'http://rosmed.rubaton.ru',
+  serverUrl: 'http://rm18.rubaton.ru',
 
   isError: false,
   isPrinting: false
@@ -23,9 +22,6 @@ const mutations = {
   },
   PRINTING_DONE (state) {
     state.isPrinting = false
-  },
-  SET_PRINT_TPL (state, value) {
-    state.printTpl = value
   },
   ERROR (state, value) {
     state.isError = value
