@@ -70,7 +70,7 @@
     <v-footer class="pa-3" fixed app>
       <div>{{ datenow }}</div>
       <v-spacer></v-spacer>
-      <div>Vshouz &copy; 2018</div>
+      <div>Vshouz &copy; 2019</div>
     </v-footer>
 
     <v-dialog 
@@ -152,7 +152,7 @@ export default {
   name: 'App',
   data () {
     return {
-      title: 'РОСМЕДОБР-2018',
+      title: 'Оргздрав-2019',
       rightDrawer: false,
       datenow: '',
 

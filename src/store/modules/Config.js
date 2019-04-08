@@ -1,7 +1,8 @@
 const state = {
   printShow: false,
   printSilent: true,
-  serverUrl: 'http://rm18.rubaton.ru',
+  //serverUrl: 'http://oz19.rubaton.ru',
+  serverUrl: 'http://rosmed',
 
   isError: false,
   isPrinting: false

@@ -93,7 +93,7 @@ export default {
       return this.$store.state.Member.statusList
     },
     canAddNewMember: function() {
-      return (this.new_member.full_name && this.new_member.company && this.new_member.position && this.new_member.email && this.new_member.phone && this.new_member.city)
+      return (this.new_member.full_name && this.new_member.company && (this.new_member.email || this.new_member.phone))
     }
   },
   watch: {
