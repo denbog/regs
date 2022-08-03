@@ -21,8 +21,8 @@
           :search-input.sync="searchByCompany"
           hide-no-data
           hide-selected
-          item-text="5"
-          item-value="5"
+          item-text="company"
+          item-value="company"
           label="Место работы"
           placeholder="Введите данные для поиска"
           prepend-icon="mdi-database-search"
@@ -56,10 +56,10 @@
         >
         </v-text-field>
         <v-select
-          :items="statusList"
+          :items="roleList"
           prepend-icon="mdi-message-bulleted"
           label="Статус на мероприятии"
-          v-model="new_member.status"
+          v-model="new_member.event_role"
         ></v-select>
       </v-card-text>
       <v-card-actions>
@@ -89,11 +89,11 @@ export default {
     searchByCompany: null
   }),
   computed: {
-    statusList: function() {
-      return this.$store.state.Member.statusList
+    roleList: function() {
+      return this.$store.state.Member.roleList
     },
     canAddNewMember: function() {
-      return (this.new_member.full_name && this.new_member.company && (this.new_member.email || this.new_member.phone))
+      return (this.new_member.full_name && this.new_member.email && this.new_member.company)
     }
   },
   watch: {
@@ -109,12 +109,13 @@ export default {
 
       this.$api({
         params: {
-          filter: 'company,cs,'+val,
-          order: 'company'
+          ['filter[event]']: this.$store.state.Config.eventId,
+          ['filter[company][like]']: val,
+          sort: 'company'
         }
       })
         .then(res => {
-          this.records = res.data.member.records
+          this.records = res.data.data
         })
         .catch(err => {
           this.$store.commit('ERROR', err)
@@ -126,36 +127,27 @@ export default {
   methods: {
     addNewMember: function() {
       let app = this
+      
+      this.new_member.full_name = this.new_member.full_name.replace(/\s{2,}/g, ' ')
+      
       let fio = this.new_member.full_name.split(' ')
-
       this.new_member.surname = fio[0]
       this.new_member.name = fio[1] || ''
       this.new_member.middle_name = fio[2] || ''
-      this.new_member.on_event = 1
-      
-      this.new_member.date_register = moment().format("DD MMMM YYYY HH:mm")
+
+      this.new_member.status = 'published'
+      this.new_member.event = this.$store.state.Config.eventId
+      this.new_member.registration = 'event'
 
       this.$api({
-        method: 'post',
+        method: 'POST',
         data: this.new_member
       })
       .then(function (response) {
-        let newId = response.data;
+        app.resetNewMember()
 
-        app.$api({
-          params: {
-            filter: 'id,eq,'+newId
-          }
-        })
-        .then(function (response) {
-          app.resetNewMember()
-
-          app.$store.commit('UPDATE_MEMBER', response.data.member.records[0])
-          app.$router.push('member-page')
-        })
-        .catch(err => {
-          this.$store.commit('ERROR', err)
-        })
+        app.$store.commit('UPDATE_MEMBER', response.data.data)
+        app.$router.push('member-page')
       })
       .catch(err => {
         this.$store.commit('ERROR', err)
@@ -163,7 +155,7 @@ export default {
     },
     resetNewMember: function() {
       this.new_member = _.zipObject(this.$store.state.Member.memberColumns, new Array(this.$store.state.Member.memberColumns.length).fill(''))
-      this.new_member.status = this.statusList[0]
+      this.new_member.event_role = this.roleList[0].value
     }
   },
   created: function () {

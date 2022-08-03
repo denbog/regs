@@ -12,7 +12,7 @@
           :label="`${eventiciosOnEvent ? 'Отчет по добавленым в программу' : 'Отчет по всеми участниками'}`"
           v-model="eventiciosOnEvent"
         ></v-switch>
-        <v-btn block color="light-blue darken-3 white--text" :href="eventiciosLink">Скачать отчет</v-btn>
+        <v-btn block color="light-blue darken-3 white--text" @click="downloadEventiciosReport">Скачать отчет</v-btn>
       </v-card-text>
     </v-card>
 
@@ -24,7 +24,7 @@
         </div>
       </v-card-title>
       <v-card-text>
-        <v-btn block color="blue-grey darken-1 white--text" :href="fullReportLink">Скачать отчет</v-btn>
+        <v-btn block color="blue-grey darken-1 white--text"  @click="downloadFullReport">Скачать отчет</v-btn>
       </v-card-text>
     </v-card>
 
@@ -39,10 +39,18 @@ export default {
   }),
   computed: {
     eventiciosLink () {
-      return this.$store.state.Config.serverUrl + '/report/?tpl=mobile&on_event=' + (this.eventiciosOnEvent ? 1 : 0)
+      return this.$store.state.Config.appUrl + '/report/'+this.$store.state.Config.eventId+'/mobile' + (this.eventiciosOnEvent ? '/event' : '')
     },
     fullReportLink () {
-      return this.$store.state.Config.serverUrl + '/report/?tpl=full'
+      return this.$store.state.Config.appUrl + '/report/'+this.$store.state.Config.eventId+'/full'
+    }
+  },
+  methods: {
+    downloadEventiciosReport () {
+      this.$root.$emit('app-download', this.eventiciosLink, 'Список участников для Eventicios')
+    },
+    downloadFullReport () {
+      this.$root.$emit('app-download', this.fullReportLink, 'Отчет по участникам конференции')
     }
   }
 }

@@ -26,6 +26,11 @@ export default new Router({
       component: require('@/components/Certificate').default
     },
     {
+      path: '/loading',
+      name: 'loading-page',
+      component: require('@/components/Loading').default
+    },
+    {
       path: '/',
       name: 'member-page',
       component: require('@/components/Member').default

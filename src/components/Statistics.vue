@@ -15,8 +15,8 @@
           :search-input.sync="search"
           hide-no-data
           hide-selected
-          item-text="5"
-          item-value="5"
+          item-text="company"
+          item-value="company"
           label="Название организации"
           placeholder="Введите данные для поиска"
           prepend-icon="mdi-office-building"
@@ -29,10 +29,10 @@
             <v-subheader>Кому распечатан бейдж ({{ recordsPrinted.length }})</v-subheader>
             <v-list-tile
               v-for="item in recordsPrinted"
-              :key="item[0]"
+              :key="item.id"
             >
               <v-list-tile-content>
-                <v-list-tile-title v-text="item[4]"></v-list-tile-title>
+                <v-list-tile-title v-text="item.full_name"></v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                   <v-icon color="green darken-3">check</v-icon>
@@ -46,10 +46,10 @@
             <v-subheader>Кто должен прийти ({{ recordsNotPrinted.length }})</v-subheader>
             <v-list-tile
               v-for="item in recordsNotPrinted"
-              :key="item[0]"
+              :key="item.id"
             >
               <v-list-tile-content>
-                <v-list-tile-title v-text="item[4]"></v-list-tile-title>
+                <v-list-tile-title v-text="item.full_name"></v-list-tile-title>
               </v-list-tile-content>
               <v-list-tile-action>
                   <v-icon color="red lighten-3">warning</v-icon>
@@ -71,7 +71,7 @@
         </div>
       </v-card-title>
       <v-card-text>
-        <v-btn block color="light-blue darken-3 white--text" :href="badgeReportLink">Скачать полный отчет по компаниям</v-btn>
+        <v-btn block color="light-blue darken-3 white--text" @click="downloadBadgeReport">Скачать полный отчет по компаниям</v-btn>
       </v-card-text>
     </v-card>
 
@@ -95,13 +95,13 @@ export default {
   }),
   computed: {
     badgeReportLink () {
-      return this.$store.state.Config.serverUrl + '/report/?tpl=company'
+      return this.$store.state.Config.appUrl+'/report/'+this.$store.state.Config.eventId+'/company'
     },
     recordsPrinted () {
-      return _.reject(this.records, ['12', ''])
+      return _.reject(this.records, ['badge_log', ''])
     },
     recordsNotPrinted () {
-      return _.filter(this.records, ['12', ''])
+      return _.filter(this.records, ['badge_log', ''])
     }
   },
   watch: {
@@ -116,19 +116,20 @@ export default {
       this.isLoading = true
 
       let companySelected = !!(this.company && this.company == val)
-      let filter = companySelected ? 'eq' : 'cs'
-      let orderBy = companySelected ? 'full_name' : 'company'
+      let filter = companySelected ? 'eq' : 'like'
+      let sortBy = companySelected ? 'full_name' : 'company'
       let pageSize = companySelected ? '50' : '20'
 
       this.$api({
           params: {
-            filter: 'company,'+filter+','+val,
-            order: orderBy,
-            page: '1,'+pageSize
+            ['filter[event][eq]']: this.$store.state.Config.eventId,
+            ['filter[company]['+filter+']']: val,
+            sort: sortBy,
+            limit: pageSize
           }
         })
         .then(res => {
-          this.records = res.data.member.records
+          this.records = res.data.data
           this.canDisplayList = companySelected
         })
         .catch(err => {
@@ -136,6 +137,11 @@ export default {
         })
         .finally(() => (this.isLoading = false))
     }, 500)
+  },
+  methods: {
+    downloadBadgeReport () {
+      this.$root.$emit('app-download', this.badgeReportLink, 'Статистика по компаниям');
+    }
   }
 }
 </script>

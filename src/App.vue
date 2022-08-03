@@ -47,6 +47,13 @@
       </v-toolbar>
       <v-card tile flat>
         <v-card-text>
+          <v-img v-if="logo"
+            :src="logo"
+            aspect-ratio="1"
+            class="grey lighten-2"
+            contain
+            max-width="200px"
+          ></v-img>
           <v-switch
             :label="`${printSilent ? 'Быстрая печать' : 'Печать с настройками'}`"
             v-model="printSilent"
@@ -57,13 +64,30 @@
           ></v-switch>
 
           <v-text-field
-            append-icon="mdi-server-network"
+            prepend-icon="mdi-server-network"
             color="white"
             label="Сервер доступа к API"
-            v-model="serverUrl"
+            v-model="apiUrl"
             :rules="[rules.required]"
           >
           </v-text-field>
+          <v-text-field
+            prepend-icon="mdi-server-network"
+            color="white"
+            label="Сервер приложения"
+            v-model="appUrl"
+            :rules="[rules.required]"
+          >
+          </v-text-field>
+
+          <v-select
+            :items="eventList"
+            prepend-icon="mdi-web"
+            label="Использовать мероприятие"
+            v-model="eventId"
+          ></v-select>
+
+          <v-btn color="red lighten-1" to="/loading">Обновить настройки <v-icon right>mdi-refresh</v-icon></v-btn>
         </v-card-text>
       </v-card>
     </v-navigation-drawer>
@@ -144,7 +168,9 @@
 </template>
 
 <script>
+import _ from 'lodash'
 import moment from 'moment'
+import { setTimeout } from 'timers';
 
 moment.locale('ru')
 
@@ -152,7 +178,9 @@ export default {
   name: 'App',
   data () {
     return {
-      title: 'Оргздрав-2019',
+      title: '',
+      logo: false,
+
       rightDrawer: false,
       datenow: '',
 
@@ -164,6 +192,24 @@ export default {
     }
   },
   computed: {
+    eventId: {
+      get () {
+        return this.$store.state.Config.eventId
+      },
+      set (value) {
+        this.$store.commit('SET_EVENT_ID', value)
+      }
+    },
+    eventList () {
+      return !this.$store.state.Config.eventList.length
+        ? []
+        : _.map(this.$store.state.Config.eventList, function(event) { 
+            return {
+              value: event.id, 
+              text: event.title
+            }
+          })
+    },
     isError: {
       get () {
         return this.$store.state.Config.isError
@@ -191,13 +237,21 @@ export default {
         this.$store.commit('SET_PRINT_SHOW', value)
       }
     },
-    serverUrl: {
+    appUrl: {
       get () {
-        return this.$store.state.Config.serverUrl
+        return this.$store.state.Config.appUrl
       },
       set (value) {
-        this.$store.commit('SET_SERVER_URL', value)
-        this.$api.defaults.baseURL = value + '/api/member'
+        this.$store.commit('SET_APP_URL', value)
+      }
+    },
+    apiUrl: {
+      get () {
+        return this.$store.state.Config.apiUrl
+      },
+      set (value) {
+        this.$store.commit('SET_API_URL', value)
+        this.$api.defaults.baseURL = value + this.$store.state.Config.participantsApiUrl
       }
     }
   },
@@ -206,10 +260,28 @@ export default {
       var app = this
       this.datenow = moment().format("DD MMMM YYYY HH:mm:ss")
       setTimeout(app.time, 1000)
+    },
+    updateEventinfo() {
+      let currentEvent = _.find(this.$store.state.Config.eventList, ['id', this.$store.state.Config.eventId])
+      //console.log(currentEvent)
+      if (currentEvent) {
+        this.title = currentEvent.title
+        this.logo = false
+
+        if (0 < currentEvent.logo) {
+          this.$api({
+            url: this.$store.state.Config.apiUrl + this.$store.state.Config.filesApiUrl + '/' + currentEvent.logo,
+          })
+            .then(res => {
+              this.logo = res.data.data.data.full_url
+            })
+        }
+      }
     }
   },
   created: function () {
-    this.$api.defaults.baseURL = this.$store.state.Config.serverUrl + '/api/member'
+    this.$api.defaults.baseURL = this.$store.state.Config.apiUrl + this.$store.state.Config.participantsApiUrl
+    this.$api.defaults.headers['Authorization'] = 'Bearer ' + this.$store.state.Config.apiAccessToken
 
     this.$electron.ipcRenderer.on('print-badge-closed', () => {
       this.$store.commit('PRINTING_DONE')
@@ -221,9 +293,42 @@ export default {
     this.$electron.ipcRenderer.on('file-download-end', () => {
       this.isDownloading = false
     })
+
+    this.$root.$on('app-download', (url, filename) => {
+      let headers = new Headers();
+      headers.append('x-apikey', this.$store.state.Config.apiAccessToken)
+
+      fetch(url, { 
+        method: 'GET',
+        headers: headers
+      })
+        .then(response => response.blob())
+        .then(blob  => {
+          var url = window.URL.createObjectURL(blob)
+          var a = document.createElement('a')
+          a.href = url
+          a.download = filename+".xlsx"
+          document.body.appendChild(a)
+          a.click();   
+          a.remove()
+        });
+    })
   },
   mounted: function() {
     this.time()
+    
+    let debouncedUpdate = _.debounce(this.updateEventinfo, 500);
+    this.$store.subscribe((mutation) => {
+      switch (mutation.type) {
+        case 'SET_EVENT_ID':
+          debouncedUpdate()
+          break;
+      }
+    })
+
+    
+    this.$router.push('/loading')
+    
   }
 }
 </script>

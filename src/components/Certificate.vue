@@ -15,8 +15,8 @@
           :search-input.sync="searchByName"
           hide-no-data
           hide-selected
-          item-text="4"
-          item-value="0"
+          item-text="full_name"
+          item-value="id"
           label="ФИО"
           placeholder="Введите данные для поиска"
           prepend-icon="mdi-database-search"
@@ -65,7 +65,7 @@ export default {
       if (! this.member) 
         return _.zipObject(this.$store.state.Member.memberColumns, new Array(this.$store.state.Member.memberColumns.length).fill(''))
 
-      return _.zipObject(this.$store.state.Member.memberColumns, this.member)
+      return this.member
     },
     isPrinting () {
       return this.$store.state.Config.isPrinting
@@ -75,7 +75,7 @@ export default {
     searchByName: _.debounce(function (val) {
       if (! val || 3 > val.length || this.isLoading) 
         return
-      if (this.member && this.member[4] == val)
+      if (this.member && this.member.full_name == val)
         return
 
       this.doSearh('full_name', val)
@@ -87,12 +87,13 @@ export default {
 
       this.$api({
         params: {
-          filter: field+',cs,'+val,
-          order: 'full_name'
+          ['filter[event][eq]']: this.$store.state.Config.eventId,
+          ['filter['+field+'][like]']: val,
+          sort: 'full_name'
         }
       })
         .then(res => {
-          this.records = res.data.member.records
+          this.records = res.data.data
         })
         .catch(err => {
           this.$store.commit('ERROR', err)
@@ -101,7 +102,7 @@ export default {
     },
     printBadge: function() {
       let printParams = {
-        url: this.$store.state.Config.serverUrl+'/print/index.php?id='+this.member[0]+'&tpl='+this.printTpl,
+        url: this.$store.state.Config.appUrl+'/print/'+this.printTpl+'/'+this.member.id,
         show: this.$store.state.Config.printShow,
         silent: false
       }
